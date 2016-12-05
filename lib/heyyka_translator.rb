@@ -7,7 +7,7 @@ module Heyyka
     include Singleton
 
     DEFAULT_HEYYKA_STRING = "Heyyka 😁".freeze
-    DEFAULT_WORDS = YAML.load(File.open(File.dirname(__FILE__) + "/blacklist.yml")).freeze
+    CONFIG_PATH           = "#{Rails.root}/config/blacklist.yml"
 
     POLISH_LETTERS = {
       "ą" => "a",
@@ -71,7 +71,7 @@ module Heyyka
       sentence.dup.tap do |translated_sentence|
         words.each do |word|
           if translated_sentence.include?(word)
-            translated_sentence.gsub!(word, replacement_word)
+            translated_sentence.gsub!(word, replacement)
           end
         end
       end
@@ -100,7 +100,7 @@ module Heyyka
     end
 
     def words
-      @words ||= build_words(words: DEFAULT_WORDS)
+      @words ||= build_words(words: fetch_words)
     end
 
     private
@@ -149,13 +149,22 @@ module Heyyka
       all
     end
 
-    def replacement_word
-      require "base64"
-      # numbers chosen by fair irb rand
-      if rand(1..2453) == 879
-        Base64.decode64 "QmFsd2FueSByemFkemEgc3dpYXRlbQ==\n"
+    # ;)
+    # def replacement_word
+    #   require "base64"
+    #   # numbers chosen by fair irb rand
+    #   if rand(1..2453) == 879
+    #     Base64.decode64 "QmFsd2FueSByemFkemEgc3dpYXRlbQ==\n"
+    #   else
+    #     replacement
+    #   end
+    # end
+
+    def fetch_words
+      if File.exists?(CONFIG_PATH)
+        YAML.load(File.open(CONFIG_PATH)).freeze
       else
-        replacement
+        YAML.load(File.open(File.dirname(__FILE__) + "/blacklist.yml")).freeze
       end
     end
   end
