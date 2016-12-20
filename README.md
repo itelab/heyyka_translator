@@ -34,7 +34,7 @@ Running with parameter --empty will create an empty file.
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'heyyka_translator', git: 'https://github.com/Adam-Stomski/heyyka_translator.git'
+gem 'heyyka_translator', git: 'https://github.com/Minus10Degrees/heyyka_translator.git'
 ```
 
 And then execute:

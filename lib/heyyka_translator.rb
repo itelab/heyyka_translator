@@ -7,7 +7,7 @@ module Heyyka
     include Singleton
 
     DEFAULT_HEYYKA_STRING = "Heyyka 😁".freeze
-    CONFIG_PATH           = "#{Rails.root}/config/blacklist.yml"
+    CONFIG_PATH           = "config/blacklist.yml".freeze
 
     POLISH_LETTERS = {
       "ą" => "a",
