@@ -17,12 +17,24 @@ Heyyka::Translator.replacement = "So hard to write good documentation"
 Heyyka::Translator.translate("jajko") # => "So hard to write good documentation"
 ```
 
+A custom blacklist can be genereated:
+
+```bash
+$ rails g heyyka_translator:blacklist
+```
+
+Generator will create file config/blacklist.yml, where you can add your own words without adding them explicitly.
+
+Otherwise the translator will load words from default list.
+
+Running with parameter --empty will create an empty file.
+
 ## Installation
 
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'heyyka_translator', git: 'https://github.com/Adam-Stomski/heyyka_translator.git'
+gem 'heyyka_translator', git: 'https://github.com/Minus10Degrees/heyyka_translator.git'
 ```
 
 And then execute:
