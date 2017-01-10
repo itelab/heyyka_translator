@@ -6,8 +6,10 @@ module Heyyka
   class Translator
     include Singleton
 
-    DEFAULT_HEYYKA_STRING = "Heyyka 😁".freeze
-    CONFIG_PATH           = "config/blacklist.yml".freeze
+    DEFAULT_HEYYKA_STRING     = "Heyyka 😁".freeze
+    DEPRECATED_BLACKLIST_PATH = "config/blacklist.yml".freeze
+    BLACKLIST_PATH            = "config/heyyka_translator/blacklist.yml".freeze
+    WHITELIST_PATH            = "config/heyyka_translator/whitelist.yml".freeze
 
     POLISH_LETTERS = {
       "ą" => "a",
@@ -68,13 +70,30 @@ module Heyyka
     end
 
     def call(sentence)
-      sentence.dup.tap do |translated_sentence|
-        words.each do |word|
-          if translated_sentence.include?(word)
-            translated_sentence.gsub!(word, replacement)
+      translated_sentence = sentence.dup
+
+      words.each do |word|
+        if translated_sentence.include?(word)
+          translated_sentence_words = translated_sentence.split
+
+          translated_sentence_words.each do |tsw|
+            next unless tsw.include?(word)
+            changed = false
+
+            exclusion_fitlers.each do |filter|
+              unless filter.match(tsw)
+                tsw.gsub!(word, replacement)
+                changed = true
+              end
+              break if changed
+            end
           end
+
+          translated_sentence = translated_sentence_words.join(" ")
         end
       end
+
+      translated_sentence
     end
 
     def add(word)
@@ -101,6 +120,10 @@ module Heyyka
 
     def words
       @words ||= build_words(words: fetch_words)
+    end
+
+    def exclusion_fitlers
+      @exc_filters ||= fetch_exlusion_filters.to_a
     end
 
     private
@@ -161,10 +184,22 @@ module Heyyka
     # end
 
     def fetch_words
-      if File.exists?(CONFIG_PATH)
-        YAML.load(File.open(CONFIG_PATH)).freeze
+      unless File.exists?(DEPRECATED_BLACKLIST_PATH)
+        fetch_yaml(BLACKLIST_PATH, File.dirname(__FILE__) + "/blacklist.yml")
       else
-        YAML.load(File.open(File.dirname(__FILE__) + "/blacklist.yml")).freeze
+        YAML.load(File.open(DEPRECATED_BLACKLIST_PATH)).freeze
+      end
+    end
+
+    def fetch_exlusion_filters
+      fetch_yaml(WHITELIST_PATH, File.dirname(__FILE__) + "/whitelist.yml")
+    end
+
+    def fetch_yaml(config_path, default_file_path)
+      if File.exists?(config_path)
+        YAML.load(File.open(config_path)).freeze
+      else
+        YAML.load(File.open(default_file_path)).freeze
       end
     end
   end
