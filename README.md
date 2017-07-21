@@ -17,7 +17,9 @@ Heyyka::Translator.replacement = "So hard to write good documentation"
 Heyyka::Translator.translate("jajko") # => "So hard to write good documentation"
 ```
 
-A custom filters can be genereated:
+## Custom filters
+
+Custom filters can be genereated:
 
 ```bash
 $ rails g heyyka_translator:filters
@@ -30,6 +32,22 @@ Generator will create two files:
 Otherwise the translator will load words from default list.
 
 Running with parameter --empty will create empty files.
+
+### Adding words to the Blacklist
+
+Just add words you want to filter with a dash:
+```yaml
+- chuj
+```
+
+### Adding words to the Whitelist
+
+Whitelist accepts both Regexp and words:
+
+```yaml
+- !ruby/regexp /(^@[\w\[\]\-\p{L}]+)|((?<=[\s,;])@[\w\[\]\-\p{L}]+)/
+- rachuj
+```
 
 ## Installation
 
