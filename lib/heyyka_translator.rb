@@ -78,15 +78,19 @@ module Heyyka
 
           translated_sentence_words.each do |tsw|
             next unless tsw.include?(word)
-            changed = false
+            change_word = true
 
             exclusion_fitlers.each do |filter|
-              unless filter.match(tsw)
-                tsw.gsub!(word, replacement)
-                changed = true
+              case filter
+              when Regexp
+                change_word = false if filter.match(tsw)
+              when String
+                change_word = false if tsw.include?(filter)
               end
-              break if changed
+              break unless change_word
             end
+
+            tsw.gsub!(word, replacement) if change_word
           end
 
           translated_sentence = translated_sentence_words.join(" ")
