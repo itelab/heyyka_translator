@@ -70,27 +70,38 @@ module Heyyka
     end
 
     def call(sentence)
+      return sentence if sentence.blank?
       translated_sentence = sentence.dup
 
       words.each do |word|
         if translated_sentence.include?(word)
           translated_sentence_words = translated_sentence.split
 
-          translated_sentence_words.each do |tsw|
-            next unless tsw.include?(word)
-            change_word = true
+          translated_sentence_words.map! do |tsw|
+            if tsw.include?(word)
+              change_word = true
 
-            exclusion_fitlers.each do |filter|
-              case filter
-              when Regexp
-                change_word = false if filter.match(tsw)
-              when String
-                change_word = false if tsw.include?(filter)
+              exclusion_fitlers.each do |filter|
+                case filter
+                when Regexp
+                  change_word = false if filter.match(tsw)
+                when String
+                  if tsw.include?(filter)
+                    change_word = false
+                    split_word = tsw.split(Regexp.new("(#{filter})")).reject(&:blank?)
+                    if split_word.is_a?(Array) && split_word.count > 1
+                      tsw = split_word.map { |sw| call(sw) }.join
+                    end
+                  end
+                end
+                break unless change_word
               end
-              break unless change_word
-            end
 
-            tsw.gsub!(word, replacement) if change_word
+              tsw.gsub!(word, replacement) if change_word
+              tsw
+            else
+              tsw
+            end
           end
 
           translated_sentence = translated_sentence_words.join(" ")
